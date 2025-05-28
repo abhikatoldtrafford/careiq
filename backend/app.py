@@ -230,6 +230,18 @@ class AskNovaResponse(BaseModel):
     rp_flag: bool = False
     alternatives: List[str] = []
 
+class TrainingCompletion(Base):
+    __tablename__ = "training_completions"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    module_id = Column(String, nullable=False)
+    completed_at = Column(DateTime, default=datetime.utcnow)
+    score = Column(Integer, nullable=True)  # Optional quiz score
+    
+    # Relationships
+    user = relationship("User", backref="training_completions")
+
 # Dependency to get DB session
 def get_db():
     db = SessionLocal()
@@ -372,7 +384,276 @@ def check_restrictive_practice_fallback(text: str) -> Dict[str, Any]:
         "severity": "low",
         "alternatives": []
     }
+# Add this around line 350 (after existing helper functions)
+TRAINING_MODULES = {
+    "rp-alternatives": {
+        "id": "rp-alternatives",
+        "title": "Restrictive Practice Alternatives",
+        "description": "Learn evidence-based alternatives to restrictive practices",
+        "duration": 15,
+        "sections": [
+            {
+                "title": "Understanding Restrictive Practices",
+                "content": """
+**What are Restrictive Practices?**
 
+Restrictive practices are interventions that intentionally restrict a person's rights or freedom of movement. Common types include:
+
+- **Physical restraints**: Holding, blocking, or forcing movement
+- **Environmental restraints**: Locking doors, blocking exits
+- **Chemical restraints**: Medication used for behavior control
+- **Mechanical restraints**: Straps, belts, or devices
+- **Seclusion**: Isolating or separating from others
+
+**Why avoid them?**
+- Violate human rights and dignity
+- Can cause physical and psychological harm
+- Often ineffective long-term
+- May escalate challenging behaviors
+                """,
+                "quiz": [
+                    {
+                        "question": "Which of these is considered a restrictive practice?",
+                        "options": ["Offering choices", "Blocking a doorway", "Active listening", "Providing support"],
+                        "correct": 1,
+                        "explanation": "Blocking a doorway prevents free movement and is an environmental restraint."
+                    }
+                ]
+            },
+            {
+                "title": "De-escalation Techniques",
+                "content": """
+**Primary De-escalation Strategies:**
+
+**1. Stay Calm**
+- Keep your voice low and steady
+- Maintain relaxed body language
+- Take deep breaths
+
+**2. Active Listening**
+- "I can see you're upset about..."
+- "Help me understand what's happening"
+- Validate their feelings
+
+**3. Offer Choices**
+- "Would you prefer to talk here or in your room?"
+- "Would you like some water or tea?"
+- Give control where possible
+
+**4. Create Space**
+- Step back if safe to do so
+- Remove unnecessary people
+- Reduce environmental stimuli
+
+**5. Problem-Solve Together**
+- "What would help right now?"
+- "Let's figure this out together"
+- Focus on solutions, not problems
+                """,
+                "quiz": [
+                    {
+                        "question": "What should you do first when someone becomes agitated?",
+                        "options": ["Call for backup", "Stay calm and lower your voice", "Give them space to calm down", "Explain the rules"],
+                        "correct": 1,
+                        "explanation": "Staying calm and speaking in a low, steady voice helps prevent escalation."
+                    }
+                ]
+            },
+            {
+                "title": "Person-Centered Alternatives",
+                "content": """
+**Instead of Restrictive Practices, Try:**
+
+**For Door Blocking/Locking:**
+- Understand why they want to leave
+- Offer to accompany them safely
+- Address underlying needs (bathroom, fresh air, etc.)
+- Use distraction or redirection
+- Create a safe walking area
+
+**For Physical Restraint:**
+- Use verbal de-escalation first
+- Offer sensory tools (fidget items, music)
+- Address pain, discomfort, or needs
+- Change the environment
+- Seek supervisor support
+
+**For Medication Refusal:**
+- Explore the reason for refusal
+- Offer choices about timing or method
+- Provide clear, simple information
+- Respect their right to refuse (if competent)
+- Document and inform healthcare team
+
+**Environmental Modifications:**
+- Reduce noise and crowding
+- Improve lighting
+- Remove triggers when possible
+- Create calming spaces
+- Use visual supports and cues
+                """,
+                "quiz": [
+                    {
+                        "question": "If someone refuses medication, what should you do first?",
+                        "options": ["Force them to take it", "Explore why they're refusing", "Call the doctor immediately", "Document non-compliance"],
+                        "correct": 1,
+                        "explanation": "Understanding the reason helps address concerns and find acceptable solutions."
+                    }
+                ]
+            }
+        ]
+    },
+    "de-escalation": {
+        "id": "de-escalation", 
+        "title": "Advanced De-escalation Techniques",
+        "description": "Master verbal and non-verbal de-escalation strategies",
+        "duration": 20,
+        "sections": [
+            {
+                "title": "Reading Escalation Signs",
+                "content": """
+**Early Warning Signs:**
+
+**Physical Signs:**
+- Increased breathing or heart rate
+- Muscle tension, clenched fists
+- Restlessness, pacing
+- Facial flushing or pallor
+- Changes in voice tone
+
+**Behavioral Signs:**
+- Increased volume or rapid speech
+- Repetitive movements or words
+- Invasion of personal space
+- Difficulty following instructions
+- Seeking attention or reassurance
+
+**Emotional Signs:**
+- Expressing frustration or anger
+- Withdrawal or shut down
+- Confusion or anxiety
+- Fear or paranoia
+- Feeling overwhelmed
+
+**The Escalation Curve:**
+1. **Baseline** - Normal, calm state
+2. **Trigger** - Something causes stress
+3. **Escalation** - Stress builds up
+4. **Crisis** - Peak of emotional dysregulation
+5. **Recovery** - Gradual return to baseline
+6. **Post-crisis** - Below baseline, vulnerable
+                """,
+                "quiz": [
+                    {
+                        "question": "What is the best time to intervene with de-escalation?",
+                        "options": ["During crisis phase", "During escalation phase", "During recovery phase", "During post-crisis phase"],
+                        "correct": 1,
+                        "explanation": "Early intervention during escalation is most effective before reaching crisis."
+                    }
+                ]
+            }
+        ]
+    },
+    "pbsp-basics": {
+        "id": "pbsp-basics",
+        "title": "Positive Behavior Support Principles", 
+        "description": "Understanding person-centered, evidence-based behavior support",
+        "duration": 25,
+        "sections": [
+            {
+                "title": "Core PBSP Principles",
+                "content": """
+**Positive Behavior Support Philosophy:**
+
+**1. Person-Centered Approach**
+- Focus on the individual's strengths and preferences
+- Respect dignity, choice, and self-determination
+- Build meaningful relationships
+- Consider cultural and personal values
+
+**2. Evidence-Based Practice**
+- Use proven strategies and interventions
+- Collect and analyze data
+- Make decisions based on evidence
+- Continuously evaluate effectiveness
+
+**3. Prevention Focus**
+- Identify and address triggers
+- Modify environments to prevent problems
+- Teach new skills proactively
+- Build on existing strengths
+
+**4. Quality of Life**
+- Enhance meaningful participation
+- Increase independence and choice
+- Build social connections
+- Promote physical and emotional wellbeing
+
+**5. Collaborative Approach**
+- Include the person in planning
+- Work with families and teams
+- Share knowledge and expertise
+- Respect different perspectives
+                """,
+                "quiz": [
+                    {
+                        "question": "What is the primary focus of PBSP?",
+                        "options": ["Stopping bad behaviors", "Punishment and consequences", "Person-centered support and prevention", "Following rules and procedures"],
+                        "correct": 2,
+                        "explanation": "PBSP focuses on person-centered support and preventing problems through positive approaches."
+                    }
+                ]
+            }
+        ]
+    }
+}
+
+def get_recommended_modules(user_id: str, db: Session) -> List[str]:
+    """Get recommended training modules based on user's recent activity"""
+    twenty_four_hours_ago = datetime.utcnow() - timedelta(hours=24)
+    
+    # Get recent RP incidents
+    rp_notes = db.query(Note).filter(
+        and_(
+            Note.user_id == user_id,
+            Note.timestamp >= twenty_four_hours_ago,
+            Note.rp_flag == True
+        )
+    ).all()
+    
+    # Get recent queries
+    queries = db.query(QueryLog).filter(
+        and_(
+            QueryLog.user_id == user_id,
+            QueryLog.timestamp >= twenty_four_hours_ago
+        )
+    ).all()
+    
+    recommended = []
+    
+    # If multiple RP incidents, recommend alternatives training
+    if len(rp_notes) >= 2:
+        recommended.append("rp-alternatives")
+    
+    # If many queries, recommend de-escalation
+    if len(queries) >= 3:
+        recommended.append("de-escalation")
+    
+    # Always include PBSP basics for comprehensive understanding
+    if len(rp_notes) + len(queries) >= 2:
+        recommended.append("pbsp-basics")
+    
+    return recommended[:2]  # Limit to 2 recommendations
+
+def has_completed_training(user_id: str, module_id: str, db: Session) -> bool:
+    """Check if user has completed specific training module"""
+    completion = db.query(TrainingCompletion).filter(
+        and_(
+            TrainingCompletion.user_id == user_id,
+            TrainingCompletion.module_id == module_id
+        )
+    ).first()
+    return completion is not None
 # Check for micro-training triggers
 async def check_training_triggers(user_id: str, db: Session) -> bool:
     """Check if user needs training prompt (2+ RP flags or queries in 24hrs)"""
@@ -899,13 +1180,112 @@ async def get_stats(
         "rp_percentage": round((rp_notes / total_notes * 100) if total_notes > 0 else 0, 1),
         # "needs_training": needs_training
     }
+# Add these training endpoints after existing endpoints (around line 600)
 
+@app.get("/api/training-modules")
+async def get_training_modules(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get available training modules with completion status"""
+    modules = []
+    
+    for module_id, module_data in TRAINING_MODULES.items():
+        completed = has_completed_training(current_user.id, module_id, db)
+        modules.append({
+            "id": module_data["id"],
+            "title": module_data["title"], 
+            "description": module_data["description"],
+            "duration": module_data["duration"],
+            "completed": completed,
+            "sections_count": len(module_data["sections"])
+        })
+    
+    return {"modules": modules}
+
+@app.get("/api/training-modules/{module_id}")
+async def get_training_module(
+    module_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get specific training module content"""
+    if module_id not in TRAINING_MODULES:
+        raise HTTPException(status_code=404, detail="Training module not found")
+    
+    module = TRAINING_MODULES[module_id].copy()
+    module["completed"] = has_completed_training(current_user.id, module_id, db)
+    
+    return module
+
+@app.post("/api/training-complete")
+async def complete_training(
+    request: dict,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Mark training module as completed"""
+    module_id = request.get("module_id")
+    score = request.get("score", 100)  # Default score if no quiz
+    
+    if module_id not in TRAINING_MODULES:
+        raise HTTPException(status_code=404, detail="Training module not found")
+    
+    # Check if already completed
+    existing = db.query(TrainingCompletion).filter(
+        and_(
+            TrainingCompletion.user_id == current_user.id,
+            TrainingCompletion.module_id == module_id
+        )
+    ).first()
+    
+    if existing:
+        return {"message": "Training already completed", "completed_at": existing.completed_at}
+    
+    # Create completion record
+    completion = TrainingCompletion(
+        user_id=current_user.id,
+        module_id=module_id,
+        score=score
+    )
+    
+    db.add(completion)
+    db.commit()
+    db.refresh(completion)
+    
+    return {
+        "message": "Training completed successfully",
+        "module_id": module_id,
+        "completed_at": completion.completed_at,
+        "score": score
+    }
+
+@app.get("/api/training-progress")
+async def get_training_progress(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get user's training progress and recommendations"""
+    total_modules = len(TRAINING_MODULES)
+    completed_modules = db.query(TrainingCompletion).filter(
+        TrainingCompletion.user_id == current_user.id
+    ).count()
+    
+    recommended_modules = get_recommended_modules(current_user.id, db)
+    
+    return {
+        "total_modules": total_modules,
+        "completed_modules": completed_modules,
+        "completion_percentage": round((completed_modules / total_modules) * 100, 1),
+        "recommended_modules": recommended_modules,
+        "needs_training": len(recommended_modules) > 0
+    }
 @app.get("/api/training-status")
 async def get_training_status(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Check if user needs training prompt"""
+    """Check if user needs training with specific recommendations"""
     needs_training = await check_training_triggers(current_user.id, db)
     
     if needs_training:
@@ -927,15 +1307,31 @@ async def get_training_status(
             )
         ).count()
         
+        # Get recommended modules
+        recommended_modules = get_recommended_modules(current_user.id, db)
+        
+        # Get module details for recommendations
+        modules_info = []
+        for module_id in recommended_modules:
+            if module_id in TRAINING_MODULES:
+                module = TRAINING_MODULES[module_id]
+                modules_info.append({
+                    "id": module_id,
+                    "title": module["title"],
+                    "duration": module["duration"],
+                    "description": module["description"]
+                })
+        
         return {
             "needs_training": True,
             "rp_incidents": rp_notes,
             "queries": queries,
-            "message": "You've had multiple RP incidents or queries. Would you like a quick refresher on RP alternatives?",
-            "training_url": "/training/rp-alternatives"  # Placeholder
+            "message": f"You've had {rp_notes + queries} incidents/queries in 24hrs. Training recommended.",
+            "recommended_modules": modules_info,
+            "priority": "high" if rp_notes >= 2 else "medium"
         }
     
-    return {"needs_training": False}
+    return {"needs_training": False, "message": "No training needed at this time"}
 
 if __name__ == "__main__":
     uvicorn.run(
