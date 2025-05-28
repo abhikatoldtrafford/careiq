@@ -315,9 +315,9 @@ For support, email support@careiq.com or open an issue in this repository.
 
 ## 📸 **Screenshots**
 
-| Dashboard | Voice Recording | AI Assistant | Training |
+| Dashboard | Voice Recording | AI Assistant | Overall |
 |-----------|----------------|--------------|----------|
-| ![Dashboard](5.png) | ![Voice](4.png) | ![Nova](3.png) | ![Overall](4.png) |
+| ![Dashboard](5.png) | ![Voice](4.png) | ![Nova](3.png) | ![Overall](1.png) |
 | Real-time statistics and participant management | Full-screen voice recording with visual feedback | Conversational AI with RP detection | Personalized micro-learning modules |
 
 <div align="center">
