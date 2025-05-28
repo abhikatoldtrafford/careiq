@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "start": "react-scripts start",
+    "start:network": "REACT_APP_HOST=0.0.0.0 react-scripts start"
+  }
+}
