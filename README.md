@@ -317,42 +317,9 @@ For support, email support@careiq.com or open an issue in this repository.
 
 | Dashboard | Voice Recording | AI Assistant | Training |
 |-----------|----------------|--------------|----------|
-| ![Dashboard](1.png) | ![Voice](2.png) | ![Nova](3.png) | ![Training](4.png) |
+| ![Dashboard](5.png) | ![Voice](4.png) | ![Nova](3.png) | ![Overall](4.png) |
 | Real-time statistics and participant management | Full-screen voice recording with visual feedback | Conversational AI with RP detection | Personalized micro-learning modules |
 
 <div align="center">
 
-## 📱 **Mobile-First Design**
 
-<img src="5.png" alt="CareIQ Overview" width="100%">
-
-### Core Features
-
-<table>
-  <tr>
-    <td align="center">
-      <img src="1.png" alt="Dashboard" width="250">
-      <br><b>Dashboard</b>
-      <br>Statistics & Overview
-    </td>
-    <td align="center">
-      <img src="2.png" alt="Voice Recording" width="250">
-      <br><b>Voice Recording</b>
-      <br>Hands-free Documentation
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="3.png" alt="AI Assistant" width="250">
-      <br><b>Nova AI</b>
-      <br>Intelligent Coaching
-    </td>
-    <td align="center">
-      <img src="4.png" alt="Training" width="250">
-      <br><b>Training</b>
-      <br>Micro-Learning Modules
-    </td>
-  </tr>
-</table>
-
-</div>
